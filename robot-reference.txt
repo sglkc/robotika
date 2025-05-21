@@ -1,0 +1,3389 @@
+/*
+  Rui Santos
+  Complete project details at https://RandomNerdTutorials.com/esp-now-esp32-arduino-ide/
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files.
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+*/
+
+#include <esp_now.h>
+#include <WiFi.h>
+/*
+ * Original sourse: https://github.com/RoboticsBrno/ESP32-Arduino-Servo-Library
+ *
+ * This is Arduino code to control Servo motor with ESP32 boards.
+ The position of servo is controlled more thean one servo motor
+ * Watch video instruction for this code: https://youtu.be/KUqR3ZLX5Ks
+
+ * Written/updated by Ahmad Shamshiri for Robojax Video channel www.Robojax.com
+ * Date: Dec 17, 2019, in Ajax, Ontario, Canada
+ * Permission granted to share this code given that this
+ * note is kept with the code.
+ * Disclaimer: this code is "AS IS" and for educational purpose only.
+ * this code has been downloaded from http://robojax.com/learn/arduino/
+
+ * Get this code and other Arduino codes from Robojax.com
+Learn Arduino step by step in structured course with all material, wiring diagram and library
+all in once place. Purchase My course on Udemy.com http://robojax.com/L/?id=62
+
+****************************
+Get early access to my videos via Patreon and have  your name mentioned at end of very
+videos I publish on YouTube here: http://robojax.com/L/?id=63 (watch until end of this video to list of my Patrons)
+****************************
+
+or make donation using PayPal http://robojax.com/L/?id=64
+
+ *  * This code is "AS IS" without warranty or liability. Free to be used as long as you keep this note intact.*
+ * This code has been download from Robojax.com
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+#include <Servo_ESP32.h>
+
+const int servoCount =16;// how many servo
+static const int servosPins[servoCount] = {2, 4, 12, 13, 14, 15, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33}; // define pins here
+
+Servo_ESP32 servos[servoCount];//do not change
+
+/*
+* this funciton is to move all servos to the same angle. Watch video for instruction https://youtu.be/KUqR3ZLX5Ks
+*/
+void setServos(int degrees) {
+    for(int i = 0; i < servoCount; ++i) {
+        servos[i].write((degrees + (35 * i)) % 180);
+    }
+}
+// Structure example to receive data
+// Must match the sender structure
+typedef struct struct_message {
+    float potsreadings;
+} struct_message;
+
+// Create a struct_message called myData
+struct_message myData;
+
+// callback function that will be executed when data is received
+void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+  memcpy(&myData, incomingData, sizeof(myData));
+  Serial.print("Bytes received: ");
+  Serial.println(len);
+
+  Serial.print("Float: ");
+  Serial.println(myData.potsreadings);
+
+}
+
+void setup() {
+  // Initialize Serial Monitor
+  Serial.begin(115200);
+  Serial.print("Robojax ESP32 Multiple servo");
+
+    for(int i = 0; i < servoCount; ++i) {
+        if(!servos[i].attach(servosPins[i])) {
+            Serial.print("Servo ");
+            Serial.print(i);
+            Serial.println("attach error");
+        }
+       }
+    delay(500);
+    //stand 2
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+3);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-3);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(500);
+
+
+
+
+
+  // Set device as a Wi-Fi Station
+  WiFi.mode(WIFI_STA);
+
+  // Init ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
+
+  // Once ESPNow is successfully Init, we will register for recv CB to
+  // get recv packer info
+  esp_now_register_recv_cb(OnDataRecv);
+}
+
+void loop() {
+
+if ( myData.potsreadings > 4500 )
+{ delay(50);
+//stand 2
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+3);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-3);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(50);
+
+
+
+}
+if ( myData.potsreadings < 4200 && myData.potsreadings >= 4000 )
+{ delay(50);
+//stand
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40);        //right lower leg
+    servos[2].write(90+40);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40);        //left upper leg
+    servos[6].write(90+40);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40+5);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40-5);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(500);
+
+
+
+
+}
+if ( myData.potsreadings < 4000 && myData.potsreadings >= 3900 )
+{ delay(50);
+//crouch
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-30);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+70);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+30);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-70);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+     delay(500);
+
+}
+if ( myData.potsreadings < 3900 && myData.potsreadings >= 3800 )
+{ delay(50);
+//walk forward
+    //stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+ //stand right foot left foot forward
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front
+    servos[0].write(90-40-0);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-0);        //right hip
+    servos[4].write(90+40-0);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-10);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front left side
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand left foot
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand left foot right foot forward
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot front
+    servos[0].write(90-40+0);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+0);        //right hip
+    servos[4].write(90+40+0);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+10);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot front right side
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(50);
+
+
+
+
+
+
+
+
+}
+if ( myData.potsreadings < 3800 && myData.potsreadings >= 3700 )
+{ delay(50);
+//walk backward
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+
+//stand right foot left foot backward
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot front
+    servos[0].write(90-40+0);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+0);        //right hip
+    servos[4].write(90+40+0);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+10);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot front left side
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand left foot
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+//stand left foot right foot backward
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front
+    servos[0].write(90-40-0);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-0);        //right hip
+    servos[4].write(90+40-0);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-10);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front right side
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(50);
+
+
+
+
+
+}
+if ( myData.potsreadings < 3700 && myData.potsreadings >= 3600 )
+{ delay(50);
+
+
+ //turn left
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+  //stand left
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand left foot right foot forward
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot front
+    servos[0].write(90-40+0);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+0);        //right hip
+    servos[4].write(90+40+0);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+10);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(200);
+
+
+}
+if ( myData.potsreadings < 3600 && myData.potsreadings >= 3500 )
+{ delay(50);
+//turn right
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot left foot forward
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front
+    servos[0].write(90-40-0);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-0);        //right hip
+    servos[4].write(90+40-0);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-10);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+ //stand
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(200);
+
+}
+if ( myData.potsreadings < 3500 && myData.potsreadings >= 3400 )
+{ delay(50);
+//step left
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot2
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-20);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-20);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+//stand 4
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40-20);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40+20);       //left hand
+
+     delay(100);
+
+  //stand left 2
+    servos[0].write(90-40+20);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40+20);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand left foot
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand 2
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+3);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-3);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(300);
+
+
+
+
+}
+if ( myData.potsreadings < 3400 && myData.potsreadings >= 3300 )
+{ delay(50);
+ //step right
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+
+ //stand left
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+//stand left foot
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand left foot2
+    servos[0].write(90-40+20);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40+20);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+//stand 4
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40-20);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40+20);       //left hand
+
+     delay(100);
+ //stand right 2
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-20);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-20);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+ //stand 2
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+3);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-3);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(300);
+
+
+
+}
+if ( myData.potsreadings < 3300 && myData.potsreadings >= 3200 )
+{ delay(50);
+//vic
+    //victory stand
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-100);       //right upper arm
+    servos[10].write(90-40+50);       //right lower arm
+    servos[11].write(90+40-30);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+100);       //left upper arm
+    servos[14].write(90+40-50);       //left lower arm
+    servos[15].write(90-40+30);       //left hand
+
+     delay(500);
+}
+if ( myData.potsreadings < 3200 && myData.potsreadings >= 3100 )
+{ delay(50);
+//standup:faceup
+   //stand 3
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(200);
+ //stand face up 1
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+45);        //right lower leg
+    servos[2].write(90+40-55);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+55);        //left upper leg
+    servos[6].write(90+40-45);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-70);        //right shoulder
+    servos[9].write(90+40+50);       //right upper arm
+    servos[10].write(90-40-10);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+70);       //left shoulder
+    servos[13].write(90-40-50);       //left upper arm
+    servos[14].write(90+40+10);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+ //stand face up 2
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-120);        //right shoulder
+    servos[9].write(90+40+50);       //right upper arm
+    servos[10].write(90-40-10);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+120);       //left shoulder
+    servos[13].write(90-40-50);       //left upper arm
+    servos[14].write(90+40+10);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+  //stand face up 3
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-0);        //right shoulder
+    servos[9].write(90+40+50);       //right upper arm
+    servos[10].write(90-40-10);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+0);       //left shoulder
+    servos[13].write(90-40-50);       //left upper arm
+    servos[14].write(90+40+10);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(500);
+//stand face up 4
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+50);        //right lower leg
+    servos[2].write(90+40-50);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+50);        //left upper leg
+    servos[6].write(90+40-50);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(200);
+
+ //stand 2
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+3);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-3);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(500);
+
+
+
+
+
+
+
+
+
+
+}
+if ( myData.potsreadings < 3100 && myData.potsreadings >= 3000 )
+{ delay(50);
+//standup:facedown
+    //stand 3
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(200);
+ //stand face down 1
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+45);        //right lower leg
+    servos[2].write(90+40-55);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+55);        //left upper leg
+    servos[6].write(90+40-45);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+30);       //right upper arm
+    servos[10].write(90-40+60);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-30);       //left upper arm
+    servos[14].write(90+40-60);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(200);
+
+
+ //stand face down 2
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-90);        //right shoulder
+    servos[9].write(90+40+30);       //right upper arm
+    servos[10].write(90-40+100);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+90);       //left shoulder
+    servos[13].write(90-40-30);       //left upper arm
+    servos[14].write(90+40-100);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(200);
+     //stand face down 2.1
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-90);        //right shoulder
+    servos[9].write(90+40+0);       //right upper arm
+    servos[10].write(90-40+100);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+90);       //left shoulder
+    servos[13].write(90-40-00);       //left upper arm
+    servos[14].write(90+40-100);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+  //stand face down 3
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-90);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-90);        //right shoulder
+    servos[9].write(90+40-90);       //right upper arm
+    servos[10].write(90-40+50);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+90);       //left shoulder
+    servos[13].write(90-40+90);       //left upper arm
+    servos[14].write(90+40-50);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(600);
+
+
+
+//stand face down 4
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-90);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-90);       //right upper arm
+    servos[10].write(90-40+50);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+90);       //left upper arm
+    servos[14].write(90+40-50);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(200);
+ //stand face down 5
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-90);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-40);       //right upper arm
+    servos[10].write(90-40+0);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+40);       //left upper arm
+    servos[14].write(90+40-0);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+ //stand face up 4
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+50);        //right lower leg
+    servos[2].write(90+40-50);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+50);        //left upper leg
+    servos[6].write(90+40-50);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(200);
+
+
+
+
+ //stand 2
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+3);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-3);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(500);
+}
+if ( myData.potsreadings < 3000 && myData.potsreadings >= 2900 )
+{ delay(50);
+//front roll
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+50);        //right lower leg
+    servos[2].write(90+40-50);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+50);        //left upper leg
+    servos[6].write(90+40-50);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(200);
+
+
+
+
+
+  //roll 1
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+30);       //right upper arm
+    servos[10].write(90-40+30);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-30);       //left upper arm
+    servos[14].write(90+40-30);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(300);
+
+
+
+   //roll 2
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+40);       //right upper arm
+    servos[10].write(90-40+100);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-40);       //left upper arm
+    servos[14].write(90+40-100);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+//roll 3
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-50);       //right upper arm
+    servos[10].write(90-40+100);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+50);       //left upper arm
+    servos[14].write(90+40-100);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+
+
+
+
+ //roll 4
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-130);       //right upper arm
+    servos[10].write(90-40+100);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+130);       //left upper arm
+    servos[14].write(90+40-100);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+
+  //roll 5
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-50);        //right shoulder
+    servos[9].write(90+40-60);       //right upper arm
+    servos[10].write(90-40+50);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+50);       //left shoulder
+    servos[13].write(90-40+60);       //left upper arm
+    servos[14].write(90+40-50);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+
+  //roll 6
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-50);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+50);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-90);        //right shoulder
+    servos[9].write(90+40-0);       //right upper arm
+    servos[10].write(90-40+20);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+90);       //left shoulder
+    servos[13].write(90-40+0);       //left upper arm
+    servos[14].write(90+40-20);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+//roll 7
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-120);        //right shoulder
+    servos[9].write(90+40+50);       //right upper arm
+    servos[10].write(90-40-10);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+120);       //left shoulder
+    servos[13].write(90-40-50);       //left upper arm
+    servos[14].write(90+40+10);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+  //roll 8
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-0);        //right shoulder
+    servos[9].write(90+40+50);       //right upper arm
+    servos[10].write(90-40-10);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+0);       //left shoulder
+    servos[13].write(90-40-50);       //left upper arm
+    servos[14].write(90+40+10);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(500);
+
+
+//stand face up 4
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+50);        //right lower leg
+    servos[2].write(90+40-50);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+50);        //left upper leg
+    servos[6].write(90+40-50);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(200);
+
+}
+if ( myData.potsreadings < 2900 && myData.potsreadings >= 100 )
+{ delay(50);
+//baby atlas
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+3);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-3);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(200);
+//stand
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(300);
+//stand right
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+ //stand right foot left foot forward
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front
+    servos[0].write(90-40-0);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-0);        //right hip
+    servos[4].write(90+40-0);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-10);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front left side
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand left foot
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand left foot right foot forward
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot front
+    servos[0].write(90-40+0);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+0);        //right hip
+    servos[4].write(90+40+0);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+10);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot front right side
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+ //stand right foot left foot forward
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front
+    servos[0].write(90-40-0);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-0);        //right hip
+    servos[4].write(90+40-0);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-10);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front left side
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand left foot
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand left foot right foot forward
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot front
+    servos[0].write(90-40+0);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+0);        //right hip
+    servos[4].write(90+40+0);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+10);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot front right side
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+
+ //stand face up 4
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+50);        //right lower leg
+    servos[2].write(90+40-50);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+50);        //left upper leg
+    servos[6].write(90+40-50);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(300);
+
+
+
+
+
+  //roll 1
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+30);       //right upper arm
+    servos[10].write(90-40+30);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-30);       //left upper arm
+    servos[14].write(90+40-30);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(300);
+
+
+
+   //roll 2
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+40);       //right upper arm
+    servos[10].write(90-40+100);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-40);       //left upper arm
+    servos[14].write(90+40-100);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+//roll 3
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-50);       //right upper arm
+    servos[10].write(90-40+100);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+50);       //left upper arm
+    servos[14].write(90+40-100);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+
+
+
+
+ //roll 4
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-130);       //right upper arm
+    servos[10].write(90-40+100);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+130);       //left upper arm
+    servos[14].write(90+40-100);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+
+  //roll 5
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-50);        //right shoulder
+    servos[9].write(90+40-60);       //right upper arm
+    servos[10].write(90-40+50);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+50);       //left shoulder
+    servos[13].write(90-40+60);       //left upper arm
+    servos[14].write(90+40-50);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+
+  //roll 6
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-50);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+50);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-90);        //right shoulder
+    servos[9].write(90+40-0);       //right upper arm
+    servos[10].write(90-40+20);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+90);       //left shoulder
+    servos[13].write(90-40+0);       //left upper arm
+    servos[14].write(90+40-20);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+//roll 7
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-120);        //right shoulder
+    servos[9].write(90+40+50);       //right upper arm
+    servos[10].write(90-40-10);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+120);       //left shoulder
+    servos[13].write(90-40-50);       //left upper arm
+    servos[14].write(90+40+10);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+  //roll 8
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-0);        //right shoulder
+    servos[9].write(90+40+50);       //right upper arm
+    servos[10].write(90-40-10);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+0);       //left shoulder
+    servos[13].write(90-40-50);       //left upper arm
+    servos[14].write(90+40+10);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(500);
+
+
+//stand face up 4
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+50);        //right lower leg
+    servos[2].write(90+40-50);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+50);        //left upper leg
+    servos[6].write(90+40-50);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(300);
+//roll 1
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+30);       //right upper arm
+    servos[10].write(90-40+30);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-30);       //left upper arm
+    servos[14].write(90+40-30);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(300);
+
+
+
+   //roll 2
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+40);       //right upper arm
+    servos[10].write(90-40+100);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-40);       //left upper arm
+    servos[14].write(90+40-100);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+//roll 3
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-50);       //right upper arm
+    servos[10].write(90-40+100);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+50);       //left upper arm
+    servos[14].write(90+40-100);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+
+
+
+
+ //roll 4
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-130);       //right upper arm
+    servos[10].write(90-40+100);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+130);       //left upper arm
+    servos[14].write(90+40-100);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+
+  //roll 5
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-50);        //right shoulder
+    servos[9].write(90+40-60);       //right upper arm
+    servos[10].write(90-40+50);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+50);       //left shoulder
+    servos[13].write(90-40+60);       //left upper arm
+    servos[14].write(90+40-50);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+
+  //roll 6
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-50);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+50);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-90);        //right shoulder
+    servos[9].write(90+40-0);       //right upper arm
+    servos[10].write(90-40+20);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+90);       //left shoulder
+    servos[13].write(90-40+0);       //left upper arm
+    servos[14].write(90+40-20);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+//roll 7
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-120);        //right shoulder
+    servos[9].write(90+40+50);       //right upper arm
+    servos[10].write(90-40-10);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+120);       //left shoulder
+    servos[13].write(90-40-50);       //left upper arm
+    servos[14].write(90+40+10);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(300);
+
+  //roll 8
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-90);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+90);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-0);        //right shoulder
+    servos[9].write(90+40+50);       //right upper arm
+    servos[10].write(90-40-10);       //right lower arm
+    servos[11].write(90+40-0);       //right hand
+    servos[12].write(90-40+0);       //left shoulder
+    servos[13].write(90-40-50);       //left upper arm
+    servos[14].write(90+40+10);       //left lower arm
+    servos[15].write(90-40+0);       //left hand
+
+     delay(500);
+
+
+//stand face up 4
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+50);        //right lower leg
+    servos[2].write(90+40-50);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+50);        //left upper leg
+    servos[6].write(90+40-50);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(200);
+
+  //victory stand
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-0);        //right shoulder
+    servos[9].write(90+40-100);       //right upper arm
+    servos[10].write(90-40+50);       //right lower arm
+    servos[11].write(90+40-30);       //right hand
+    servos[12].write(90-40+0);       //left shoulder
+    servos[13].write(90-40+100);       //left upper arm
+    servos[14].write(90+40-50);       //left lower arm
+    servos[15].write(90-40+30);       //left hand
+
+     delay(1500);
+
+
+
+ //stand
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+3);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-3);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(200);
+//stand
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(300);
+//stand right
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+//stand right foot left foot backward
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot front
+    servos[0].write(90-40+0);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+0);        //right hip
+    servos[4].write(90+40+0);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+10);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot front left side
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand left foot
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+//stand left foot right foot backward
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front
+    servos[0].write(90-40-0);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-0);        //right hip
+    servos[4].write(90+40-0);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-10);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front right side
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot left foot backward
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot front
+    servos[0].write(90-40+0);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+0);        //right hip
+    servos[4].write(90+40+0);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+10);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot front left side
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand left foot
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+//stand left foot right foot backward
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front
+    servos[0].write(90-40-0);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-0);        //right hip
+    servos[4].write(90+40-0);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-10);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front right side
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+     //stand right foot left foot backward
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot front
+    servos[0].write(90-40+0);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+0);        //right hip
+    servos[4].write(90+40+0);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+10);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot front left side
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand left foot
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+//stand left foot right foot backward
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front
+    servos[0].write(90-40-0);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-0);        //right hip
+    servos[4].write(90+40-0);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-10);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front right side
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+     //stand right foot left foot backward
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot front
+    servos[0].write(90-40+0);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+0);        //right hip
+    servos[4].write(90+40+0);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+10);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot front left side
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand left foot
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+//stand left foot right foot backward
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front
+    servos[0].write(90-40-0);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-0);        //right hip
+    servos[4].write(90+40-0);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-10);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front right side
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+     //stand right foot left foot backward
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot front
+    servos[0].write(90-40+0);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+0);        //right hip
+    servos[4].write(90+40+0);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40+10);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+ //stand right foot front left side
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+0);        //right lower leg
+    servos[2].write(90+40-30);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+0);        //left upper leg
+    servos[6].write(90+40-30);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand left foot
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-70);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+
+//stand left foot right foot backward
+    servos[0].write(90-40+10);        //right foot
+    servos[1].write(90-40+70);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40+10);        //right hip
+    servos[4].write(90+40+10);       //left hip
+    servos[5].write(90-40+20);        //left upper leg
+    servos[6].write(90+40-20);        //left lower leg
+    servos[7].write(90+40+10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front
+    servos[0].write(90-40-0);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-0);        //right hip
+    servos[4].write(90+40-0);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-0);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40-10);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand  left foot front right side
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+30);        //right lower leg
+    servos[2].write(90+40-0);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+30);        //left upper leg
+    servos[6].write(90+40-0);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+//stand right foot
+    servos[0].write(90-40-10);        //right foot
+    servos[1].write(90-40+20);        //right lower leg
+    servos[2].write(90+40-20);        //right upper leg
+    servos[3].write(90-40-10);        //right hip
+    servos[4].write(90+40-10);       //left hip
+    servos[5].write(90-40+70);        //left upper leg
+    servos[6].write(90+40-70);        //left lower leg
+    servos[7].write(90+40-10);        //left foot
+    servos[8].write(90+40-20);        //right shoulder
+    servos[9].write(90+40+20);       //right upper arm
+    servos[10].write(90-40+40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40+20);       //left shoulder
+    servos[13].write(90-40-20);       //left upper arm
+    servos[14].write(90+40-40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(100);
+     //stand 2
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+3);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-3);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(500);
+
+
+}if ( myData.potsreadings < 100  )
+{ delay(50);
+//stand
+    servos[0].write(90-40);        //right foot
+    servos[1].write(90-40+3);        //right lower leg
+    servos[2].write(90+40-3);        //right upper leg
+    servos[3].write(90-40);        //right hip
+    servos[4].write(90+40);       //left hip
+    servos[5].write(90-40+3);        //left upper leg
+    servos[6].write(90+40-3);        //left lower leg
+    servos[7].write(90+40);        //left foot
+    servos[8].write(90+40);        //right shoulder
+    servos[9].write(90+40);       //right upper arm
+    servos[10].write(90-40);       //right lower arm
+    servos[11].write(90+40);       //right hand
+    servos[12].write(90-40);       //left shoulder
+    servos[13].write(90-40);       //left upper arm
+    servos[14].write(90+40);       //left lower arm
+    servos[15].write(90-40);       //left hand
+
+     delay(200);
+}}
